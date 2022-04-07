@@ -17,4 +17,4 @@ router.delete('/:id', removeTask)
 // router.put('/:id', requireAuth, updateTask)
 // router.delete('/:id', requireAuth, removeTask)
 
-module.exports = router
+module.exports = router;
