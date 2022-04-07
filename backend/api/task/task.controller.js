@@ -7,8 +7,19 @@ module.exports = {
   addTask,
   updateTask,
   removeTask,
+  performTask
 }
-
+async function performTask(req, res) {
+  try {
+    const { id } = req.params
+    var task = await taskService.getTaskById(id)
+    var updatedTask = await taskService.performTask(task)
+    res.json(updatedTask)
+  } catch (err) {
+    logger.error('Failed to performTask', err)
+    res.status(500).send({ err: 'Failed to performTask' })
+  }
+}
 // LIST
 async function getTasks(req, res) {
   try {

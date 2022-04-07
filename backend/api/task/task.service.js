@@ -8,17 +8,32 @@ module.exports = {
   getById,
   add,
   update,
+  performTask
 };
 
 async function performTask(task) {
   try {
-    // TODO: update task status to running and save to DB
-    // TODO: execute the task using: externalService.execute
-    // TODO: update task for success (doneAt, status)
+    const collection = await dbService.getCollection('task');
+    // update task status to running and save to DB
+    task.status = 'running'
+    const id = ObjectId(task._id);
+    delete task._id;
+    await collection.updateOne({ _id: id }, { $set: { ...task } });
+    //  execute the task using: externalService.execute
+    await execute(task)
+    // update task for success (doneAt, status)
+    task.status = 'done'
   } catch (error) {
-    // TODO: update task for error: status, errors
+    // update task for error: status, errors
+    task.status = 'failed'
+    task.errors.push(error);
   } finally {
-    // TODO: update task lastTried, triesCount and save to DB
+    // update task lastTried, triesCount and save to DB
+    task.lastTriedAt = Date.now();
+    task.triesCount++
+    await collection.updateOne({ _id: id }, { $set: { ...task } });
+    task._id = id;
+    return task
   }
 }
 
@@ -91,13 +106,48 @@ async function update(task) {
   }
 }
 
-function _buildCriteria(filterBy) {
-  const criteria = {};
+// function _buildCriteria(filterBy) {
+//   const criteria = {};
 
-  if (filterBy._id) {
-    criteria.hostId = { $eq: filterBy._id };
+//   if (filterBy._id) {
+//     criteria.hostId = { $eq: filterBy._id };
+//   }
+
+
+//   return criteria;
+// }
+
+async function runWorker() {
+  // The isWorkerOn is toggled by the button: "Start/Stop Task Worker"
+  if (!isWorkerOn) return;
+  var delay = 5000;
+  try {
+    const task = await taskService.getNextTask()
+    if (task) {
+      try {
+        await taskService.performTask(task)
+      } catch (err) {
+        console.log(`Failed Task`, err)
+      } finally {
+        delay = 1
+      }
+    } else {
+      console.log('Snoozing... no tasks to perform')
+    }
+  } catch (err) {
+    console.log(`Failed getting next task to execute`, err)
+  } finally {
+    setTimeout(runWorker, delay)
   }
+}
 
-
-  return criteria;
+async function getNextTask() {
+  try {
+    const collection = await dbService.getCollection('task');
+    var task = await collection.find({ $and: [{ triesCount: { $lt: 5 } }, { $or: [{ status: { $eq: 'new' } }, { status: { $eq: 'failed' } }] }] }).sort({ triesCount: 1, importance: -1, _id: 1 }).limit(1);
+    return task
+  } catch (err) {
+    logger.error('cannot find task to run', err);
+    throw err;
+  }
 }
