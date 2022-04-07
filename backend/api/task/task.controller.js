@@ -2,15 +2,15 @@ const logger = require('../../services/logger.service')
 const orderService = require('./task.service')
 
 module.exports = {
-  getOrders,
-  getOrderById,
-  addOrder,
-  updateOrder,
-  removeOrder,
+  getTasks,
+  getTaskById,
+  addTask,
+  updateTask,
+  removeTask,
 }
 
 // LIST
-async function getOrders(req, res) {
+async function getTasks(req, res) {
   try {
     const filterBy = req.query
     const orders = await orderService.query(filterBy)
@@ -22,7 +22,7 @@ async function getOrders(req, res) {
 }
 
 // READ
-async function getOrderById(req, res) {
+async function getTaskById(req, res) {
   try {
     const { id } = req.params
     const order = await orderService.getById(id)
@@ -34,13 +34,13 @@ async function getOrderById(req, res) {
 }
 
 // CREATE
-async function addOrder(req, res) {
+async function addTask(req, res) {
   try {
     const order = req.body
-    const addedOrderId = await orderService.add(order)
-    const addedOrder = await orderService.getById(addedOrderId.insertedId)
+    const addedTaskId = await orderService.add(order)
+    const addedTask = await orderService.getById(addedTaskId.insertedId)
 
-    res.json(addedOrder)
+    res.json(addedTask)
   } catch (err) {
     logger.error('Failed to add order', err)
     res.status(500).send({ err: 'Failed to add order' })
@@ -48,11 +48,11 @@ async function addOrder(req, res) {
 }
 
 // UPDATE
-async function updateOrder(req, res) {
+async function updateTask(req, res) {
   try {
     const order = req.body
-    const updatedOrder = await orderService.update(order)
-    res.json(updatedOrder)
+    const updatedTask = await orderService.update(order)
+    res.json(updatedTask)
   } catch (err) {
     logger.error('Failed to update order', err)
     res.status(500).send({ err: 'Failed to update order' })
@@ -60,7 +60,7 @@ async function updateOrder(req, res) {
 }
 
 // DELETE
-async function removeOrder(req, res) {
+async function removeTask(req, res) {
   try {
     const { id } = req.params
     const removedId = await orderService.remove(id)
