@@ -1,5 +1,5 @@
 const logger = require('../../services/logger.service')
-const orderService = require('./task.service')
+const taskService = require('./task.service')
 
 module.exports = {
   getTasks,
@@ -13,11 +13,11 @@ module.exports = {
 async function getTasks(req, res) {
   try {
     const filterBy = req.query
-    const orders = await orderService.query(filterBy)
-    res.json(orders)
+    const tasks = await taskService.query(filterBy)
+    res.json(tasks)
   } catch (err) {
-    logger.error('Failed to get orders', err)
-    res.status(500).send({ err: 'Failed to get orders' })
+    logger.error('Failed to get tasks', err)
+    res.status(500).send({ err: 'Failed to get tasks' })
   }
 }
 
@@ -25,37 +25,37 @@ async function getTasks(req, res) {
 async function getTaskById(req, res) {
   try {
     const { id } = req.params
-    const order = await orderService.getById(id)
-    res.json(order)
+    const task = await taskService.getById(id)
+    res.json(task)
   } catch (err) {
-    logger.error('Failed to get order', err)
-    res.status(500).send({ err: 'Failed to get order' })
+    logger.error('Failed to get task', err)
+    res.status(500).send({ err: 'Failed to get task' })
   }
 }
 
 // CREATE
 async function addTask(req, res) {
   try {
-    const order = req.body
-    const addedTaskId = await orderService.add(order)
-    const addedTask = await orderService.getById(addedTaskId.insertedId)
+    const task = req.body
+    const addedTaskId = await taskService.add(task)
+    const addedTask = await taskService.getById(addedTaskId.insertedId)
 
     res.json(addedTask)
   } catch (err) {
-    logger.error('Failed to add order', err)
-    res.status(500).send({ err: 'Failed to add order' })
+    logger.error('Failed to add task', err)
+    res.status(500).send({ err: 'Failed to add task' })
   }
 }
 
 // UPDATE
 async function updateTask(req, res) {
   try {
-    const order = req.body
-    const updatedTask = await orderService.update(order)
+    const task = req.body
+    const updatedTask = await taskService.update(task)
     res.json(updatedTask)
   } catch (err) {
-    logger.error('Failed to update order', err)
-    res.status(500).send({ err: 'Failed to update order' })
+    logger.error('Failed to update task', err)
+    res.status(500).send({ err: 'Failed to update task' })
   }
 }
 
@@ -63,10 +63,10 @@ async function updateTask(req, res) {
 async function removeTask(req, res) {
   try {
     const { id } = req.params
-    const removedId = await orderService.remove(id)
+    const removedId = await taskService.remove(id)
     res.send(removedId)
   } catch (err) {
-    logger.error('Failed to remove order', err)
-    res.status(500).send({ err: 'Failed to remove order' })
+    logger.error('Failed to remove task', err)
+    res.status(500).send({ err: 'Failed to remove task' })
   }
 }
