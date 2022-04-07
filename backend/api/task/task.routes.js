@@ -9,11 +9,11 @@ const router = express.Router()
 
 router.get('/', log, getTasks)
 router.get('/:id', getTaskById)
-// router.post('/', addTask)
-// router.put('/:id', updateTask)
-// router.delete('/:id', removeTask)
-router.post('/', requireAuth, addTask)
-router.put('/:id', requireAuth, updateTask)
-router.delete('/:id', requireAuth, removeTask)
+router.post('/', addTask)
+router.put('/:id', updateTask)
+router.delete('/:id', removeTask)
+// router.post('/', requireAuth, addTask)
+// router.put('/:id', requireAuth, updateTask)
+// router.delete('/:id', requireAuth, removeTask)
 
 module.exports = router
