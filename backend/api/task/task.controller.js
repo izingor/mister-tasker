@@ -103,6 +103,7 @@ async function addTask(req, res) {
   task.triesCount = 0;
   task.doneAt = null;
   task.errors = [];
+  task.status = 'new'
   console.log('adding task - controller', task);
 
   try {

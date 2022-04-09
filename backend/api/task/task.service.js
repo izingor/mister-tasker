@@ -1,4 +1,5 @@
 const dbService = require('../../services/db.service');
+const socketService = require('../../services/socket.service');
 const logger = require('../../services/logger.service');
 const ObjectId = require('mongodb').ObjectId;
 
@@ -17,6 +18,7 @@ async function performTask(task) {
   const collection = await dbService.getCollection('task');
   try {
     task.status = 'running';
+    socketService.emitTo({ type: 'task', data: task })
     delete task._id;
     await collection.updateOne({ _id: id }, { $set: { ...task } });
     await execute(task);
@@ -30,6 +32,7 @@ async function performTask(task) {
     task.triesCount++;
     await collection.updateOne({ _id: id }, { $set: { ...task } });
     task._id = id;
+    socketService.emitTo({ type: 'task', data: task })
     return task;
   }
 }
