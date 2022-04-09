@@ -65,6 +65,7 @@ function connectSockets(http, session) {
 }
 
 function emitTo({ type, data, label }) {
+    console.log('emit', type, data);
     if (label) gIo.to('watching:' + label).emit(type, data)
     else gIo.emit(type, data)
 }

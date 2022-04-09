@@ -17,7 +17,7 @@ export default {
             state.tasks.unshift(task)
         },
         saveTask(state, { task }) {
-            const idx = state.tasks.findIndex((o) => o._id === task._id);
+            const idx = state.tasks.findIndex((t) => t._id === task._id);
             if (idx !== -1) state.tasks.splice(idx, 1, task);
             else state.tasks.unshift(task);
         },

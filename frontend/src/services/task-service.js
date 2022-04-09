@@ -17,7 +17,7 @@ async function startTask(id) {
   return await httpService.put(`${ENDPOINT}/${id}/start`)
 }
 
-async function startAll(id) {
+async function startAll() {
   return await httpService.put(`${ENDPOINT}/runworker`)
 }
 

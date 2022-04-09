@@ -9,15 +9,17 @@
 
 <script>
 import taskList from '../components/task-list.vue';
+import {socketService} from '../services/socket.service.js'
 
 export default {
 	name: 'task-app',
-  data() {
+  	data() {
 		return {
 			
 		};
 	},
 	created() {
+	socketService.on('task', this.updateTask)
     this.$store.dispatch({ type: "getTasks" });
 	},
 	computed: {
@@ -28,7 +30,12 @@ export default {
 	methods: {
 		startAll(){
     		this.$store.dispatch({ type: "startAll" });
-		}
+		},
+		updateTask(task){
+			console.log('socket!!!!!!!!',task);
+			this.$store.commit({ type: "saveTask", task:task });
+	},
+		
 	},
 	components: {
 		taskList,
