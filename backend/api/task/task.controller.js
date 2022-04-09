@@ -11,14 +11,16 @@ module.exports = {
   startTask
 };
 async function startTask(req, res) {
+  // res.send(id)
   try {
     const { id } = req.params;
     var task = await taskService.getById(id);
+    console.log('got the task by id',task);
     var updatedTask = await taskService.performTask(task);
     res.json(updatedTask);
   } catch (err) {
     logger.error('Failed to performTask', err);
-    res.status(500).send({ err: 'Failed to performTask' });
+    res.status(500).send({ err: 'Failed to performTask controller' });
   }
 }
 //worker
