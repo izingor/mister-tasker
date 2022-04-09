@@ -1,5 +1,5 @@
 import { httpService } from './http-service';
-
+import { utilService } from './util-service';
 
 const ENDPOINT = 'task';
 
@@ -14,30 +14,31 @@ export const taskService = {
 };
 
 async function startTask(id) {
-  return await httpService.put(`${ENDPOINT}/${id}/start`)
+  return await httpService.put(`${ENDPOINT}/${id}/start`);
 }
 
-async function startAll(id) {
-  return await httpService.put(`${ENDPOINT}/runworker`)
+async function startAll(isWorkerOn) {
+  
+  return await httpService.put(`${ENDPOINT}/runworker`, { isWorkerOn });
 }
 
 async function query(filterBy = {}) {
-  return await httpService.get(`${ENDPOINT}` + '/', filterBy)
+  return await httpService.get(`${ENDPOINT}` + '/', filterBy);
 }
 
 async function getById(id) {
-  return await httpService.get(`${ENDPOINT}/${id}`)
+  return await httpService.get(`${ENDPOINT}/${id}`);
 }
 
 async function remove(id) {
-  return await httpService.delete(`${ENDPOINT}/${id}`)
+  return await httpService.delete(`${ENDPOINT}/${id}`);
 }
 
 async function save(task) {
   // task.status = task.status ? task.status : "Pending"
   return task._id
     ? await httpService.put(`${ENDPOINT}/${task._id}`, task)
-    : await httpService.post(ENDPOINT, task)
+    : await httpService.post(ENDPOINT, task);
 }
 
 async function getEmptyTask(task) {

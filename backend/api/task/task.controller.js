@@ -1,6 +1,8 @@
 const logger = require('../../services/logger.service');
 const taskService = require('./task.service');
 
+var isWorkerOn = null;
+
 module.exports = {
   getTasks,
   getTaskById,
@@ -15,7 +17,7 @@ async function startTask(req, res) {
   try {
     const { id } = req.params;
     var task = await taskService.getById(id);
-    console.log('got the task by id',task);
+    console.log('got the task by id', task);
     var updatedTask = await taskService.performTask(task);
     res.json(updatedTask);
   } catch (err) {
@@ -25,14 +27,27 @@ async function startTask(req, res) {
 }
 //worker
 
-async function runWorker() {
-  console.log('run worker');
+async function runWorker(req, res) {
+  
+  // if (req?.session?.isWorkerOn) {
+  //   isWorkerOn = req.session.isWorkerOn.isWorkerOn;
+  // } else {
+  //   req.session.isWorkerOn = req.body;
+  //   isWorkerOn = req.session.isWorkerOn.isWorkerOn;
+  // }
+  
+  if (req?.body) {
+    isWorkerOn = req.body
+    // req.session.isWorkerOn = isWorkerOn
+  } 
+  console.log('run worker',isWorkerOn);
+  // console.log(isWorkerOn);
   // The isWorkerOn is toggled by the button: "Start/Stop Task Worker"
-  // if (!isWorkerOn) return;
+  if (!isWorkerOn.isWorkerOn) return;
   var delay = 5000;
   try {
     const task = await taskService.getNextTask();
-    console.log('worker task',task);
+    console.log('worker task', task);
     if (task) {
       try {
         await taskService.performTask(task);
@@ -43,10 +58,15 @@ async function runWorker() {
       }
     } else {
       console.log('Snoozing... no tasks to perform');
+      isWorkerOn = false;
+      
+      // return;
     }
   } catch (err) {
+
     console.log(`Failed getting next task to execute`, err);
   } finally {
+    // if()
     setTimeout(runWorker, delay);
   }
 }

@@ -1,4 +1,4 @@
-import { taskService } from '../../services/task-service'
+import { taskService } from '../../services/task-service';
 
 export default {
     state: {
@@ -6,15 +6,15 @@ export default {
     },
     getters: {
         tasks(state) {
-            return state.tasks
+            return state.tasks;
         },
     },
     mutations: {
         setTasks(state, { tasks }) {
-            state.tasks = tasks.sort((a, b) => b.createdAt - a.createdAt)
+            state.tasks = tasks.sort((a, b) => b.createdAt - a.createdAt);
         },
         addTask(state, { task }) {
-            state.tasks.unshift(task)
+            state.tasks.unshift(task);
         },
         saveTask(state, { task }) {
             const idx = state.tasks.findIndex((o) => o._id === task._id);
@@ -22,32 +22,34 @@ export default {
             else state.tasks.unshift(task);
         },
         removeTask(state, { taskId }) {
-            const idx = state.tasks.findIndex((task) => task._id === taskId)
-            state.tasks.splice(idx, 1)
+            const idx = state.tasks.findIndex((task) => task._id === taskId);
+            state.tasks.splice(idx, 1);
         },
+
     },
     actions: {
         async getTasks({ commit }) {
             try {
-                const tasks = await taskService.query()
-                commit({ type: 'setTasks', tasks })
-                return tasks
+                const tasks = await taskService.query();
+                commit({ type: 'setTasks', tasks });
+                return tasks;
             } catch (err) {
-                console.log('err :>> ', err)
+                console.log('err :>> ', err);
             }
         },
         async startTask({ commit }, { id }) {
             try {
-                const addedTask = await taskService.startTask(id)
+                const addedTask = await taskService.startTask(id);
                 // commit({ type: 'saveTask', task: addedTask })
                 return addedTask;
             } catch (err) {
-                console.log('err :>> ', err)
+                console.log('err :>> ', err);
             }
         },
-        async startAll({ commit }) {
+        async startAll({ commit }, { isWorkerOn }) {
+            console.log(isWorkerOn);
             try {
-                const addedTask = await taskService.startAll()
+                const addedTask = await taskService.startAll(isWorkerOn)
                 // commit({ type: 'saveTask', task: addedTask })
                 return addedTask;
             } catch (err) {
@@ -56,20 +58,20 @@ export default {
         },
         async addTask({ commit }, { task }) {
             try {
-                const addedTask = await taskService.save(task)
-                commit({ type: 'saveTask', task: addedTask })
+                const addedTask = await taskService.save(task);
+                commit({ type: 'saveTask', task: addedTask });
                 return addedTask;
             } catch (err) {
-                console.log('err :>> ', err)
+                console.log('err :>> ', err);
             }
         },
         async removeTask({ commit }, { taskId }) {
             try {
-                await taskService.removeTask(taskId)
-                commit({ type: 'removeTask', taskId })
+                await taskService.removeTask(taskId);
+                commit({ type: 'removeTask', taskId });
             } catch (err) {
-                console.log('err :>> ', err)
+                console.log('err :>> ', err);
             }
         },
     },
-}
+};
