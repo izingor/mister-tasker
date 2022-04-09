@@ -50,7 +50,7 @@ async function execute(task) {
         reject('High Temparture');
       }
 
-    }, 5);
+    }, 5000);
   });
 }
 
@@ -135,8 +135,8 @@ async function getNextTask() {
           { status: { $eq: 'failed' } }]
         }]
     })
-      .sort({ triesCount: 1, importance: -1, _id: 1 }).limit(1);
-    return task;
+      .sort({ triesCount: 1, importance: -1, _id: 1 }).limit(1).toArray();
+    return task[0];
   } catch (err) {
     logger.error('cannot find task to run', err);
     throw err;
