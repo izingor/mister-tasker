@@ -15,7 +15,7 @@ async function startTask(req, res) {
   try {
     const { id } = req.params;
     var task = await taskService.getById(id);
-    console.log('got the task by id',task);
+    console.log('got the task by id', task);
     var updatedTask = await taskService.performTask(task);
     res.json(updatedTask);
   } catch (err) {
@@ -32,7 +32,7 @@ async function runWorker() {
   var delay = 5000;
   try {
     const task = await taskService.getNextTask();
-    console.log('worker task',task);
+    console.log('worker task', task);
     if (task) {
       try {
         await taskService.performTask(task);
@@ -83,6 +83,7 @@ async function addTask(req, res) {
   task.triesCount = 0;
   task.doneAt = null;
   task.errors = [];
+  task.status = 'new'
   console.log('adding task - controller', task);
 
   try {
