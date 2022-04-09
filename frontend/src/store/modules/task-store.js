@@ -45,6 +45,15 @@ export default {
                 console.log('err :>> ', err)
             }
         },
+        async startAll({ commit }) {
+            try {
+                const addedTask = await taskService.startAll()
+                // commit({ type: 'saveTask', task: addedTask })
+                return addedTask;
+            } catch (err) {
+                console.log('err :>> ', err)
+            }
+        },
         async addTask({ commit }, { task }) {
             try {
                 const addedTask = await taskService.save(task)

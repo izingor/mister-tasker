@@ -9,11 +9,16 @@ export const taskService = {
   remove,
   save,
   getEmptyTask,
-  startTask
+  startTask,
+  startAll
 };
 
 async function startTask(id) {
   return await httpService.put(`${ENDPOINT}/${id}/start`)
+}
+
+async function startAll(id) {
+  return await httpService.put(`${ENDPOINT}/runworker`)
 }
 
 async function query(filterBy = {}) {

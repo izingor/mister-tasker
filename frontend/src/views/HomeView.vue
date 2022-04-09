@@ -1,5 +1,8 @@
 <template>
   <section>
+    <div>
+      <button @click="startAll">start all</button>
+    </div>
     <task-list :tasks="tasks" />
   </section>
 </template>
@@ -23,7 +26,9 @@ export default {
     },
 	},
 	methods: {
-
+		startAll(){
+    		this.$store.dispatch({ type: "startAll" });
+		}
 	},
 	components: {
 		taskList,
