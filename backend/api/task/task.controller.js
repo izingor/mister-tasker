@@ -26,11 +26,13 @@ async function startTask(req, res) {
 //worker
 
 async function runWorker() {
+  console.log('run worker');
   // The isWorkerOn is toggled by the button: "Start/Stop Task Worker"
-  if (!isWorkerOn) return;
+  // if (!isWorkerOn) return;
   var delay = 5000;
   try {
     const task = await taskService.getNextTask();
+    console.log('worker task',task);
     if (task) {
       try {
         await taskService.performTask(task);
@@ -97,7 +99,7 @@ async function addTask(req, res) {
 async function updateTask(req, res) {
   try {
     const task = req.body;
-    console.log('updating taks', task);
+    // console.log('updating taks', task);
     const updatedTask = await taskService.update(task);
     res.json(updatedTask);
   } catch (err) {
