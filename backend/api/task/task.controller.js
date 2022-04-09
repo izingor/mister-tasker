@@ -1,5 +1,5 @@
-const logger = require('../../services/logger.service')
-const taskService = require('./task.service')
+const logger = require('../../services/logger.service');
+const taskService = require('./task.service');
 
 module.exports = {
   getTasks,
@@ -7,77 +7,111 @@ module.exports = {
   addTask,
   updateTask,
   removeTask,
-  performTask
-}
-async function performTask(req, res) {
+  runWorker,
+  startTask
+};
+async function startTask(req, res) {
   try {
-    const { id } = req.params
-    var task = await taskService.getTaskById(id)
-    var updatedTask = await taskService.performTask(task)
-    res.json(updatedTask)
+    const { id } = req.params;
+    var task = await taskService.getById(id);
+    var updatedTask = await taskService.performTask(task);
+    res.json(updatedTask);
   } catch (err) {
-    logger.error('Failed to performTask', err)
-    res.status(500).send({ err: 'Failed to performTask' })
+    logger.error('Failed to performTask', err);
+    res.status(500).send({ err: 'Failed to performTask' });
   }
 }
-// LIST
+//worker
+
+async function runWorker() {
+  // The isWorkerOn is toggled by the button: "Start/Stop Task Worker"
+  if (!isWorkerOn) return;
+  var delay = 5000;
+  try {
+    const task = await taskService.getNextTask();
+    if (task) {
+      try {
+        await taskService.performTask(task);
+      } catch (err) {
+        console.log(`Failed Task`, err);
+      } finally {
+        delay = 1;
+      }
+    } else {
+      console.log('Snoozing... no tasks to perform');
+    }
+  } catch (err) {
+    console.log(`Failed getting next task to execute`, err);
+  } finally {
+    setTimeout(runWorker, delay);
+  }
+}
+
+// LIST - working without filter
 async function getTasks(req, res) {
   try {
-    const filterBy = req.query
-    const tasks = await taskService.query(filterBy)
-    res.json(tasks)
+    // const filterBy = req.query;
+    const tasks = await taskService.query();
+    res.json(tasks);
   } catch (err) {
-    logger.error('Failed to get tasks', err)
-    res.status(500).send({ err: 'Failed to get tasks' })
+    logger.error('Failed to get tasks', err);
+    res.status(500).send({ err: 'Failed to get tasks' });
   }
 }
 
-// READ
+// READ - working !!!
 async function getTaskById(req, res) {
   try {
-    const { id } = req.params
-    const task = await taskService.getById(id)
-    res.json(task)
+    const { id } = req.params;
+    const task = await taskService.getById(id);
+    res.json(task);
   } catch (err) {
-    logger.error('Failed to get task', err)
-    res.status(500).send({ err: 'Failed to get task' })
+    logger.error('Failed to get task', err);
+    res.status(500).send({ err: 'Failed to get task' });
   }
 }
 
-// CREATE
+// CREATE-Working!!!
 async function addTask(req, res) {
-  try {
-    const task = req.body
-    const addedTaskId = await taskService.add(task)
-    const addedTask = await taskService.getById(addedTaskId.insertedId)
+  const task = req.body;
+  task.createdAt = Date.now();
+  task.lastTriedAt = null;
+  task.triesCount = 0;
+  task.doneAt = null;
+  task.errors = [];
+  console.log('adding task - controller', task);
 
-    res.json(addedTask)
+  try {
+    const addedTaskId = await taskService.add(task);
+    const addedTask = await taskService.getById(addedTaskId.insertedId);
+    res.json(addedTask);
   } catch (err) {
-    logger.error('Failed to add task', err)
-    res.status(500).send({ err: 'Failed to add task' })
+    logger.error('Failed to add task', err);
+    res.status(500).send({ err: 'Failed to add task' });
   }
 }
 
-// UPDATE
+// UPDATE - Working!!!
 async function updateTask(req, res) {
   try {
-    const task = req.body
-    const updatedTask = await taskService.update(task)
-    res.json(updatedTask)
+    const task = req.body;
+    console.log('updating taks', task);
+    const updatedTask = await taskService.update(task);
+    res.json(updatedTask);
   } catch (err) {
-    logger.error('Failed to update task', err)
-    res.status(500).send({ err: 'Failed to update task' })
+    logger.error('Failed to update task', err);
+    res.status(500).send({ err: 'Failed to update task' });
   }
 }
 
-// DELETE
+// DELETE - Working !!!!
 async function removeTask(req, res) {
   try {
-    const { id } = req.params
-    const removedId = await taskService.remove(id)
-    res.send(removedId)
+    const { id } = req.params;
+    const removedId = await taskService.remove(id);
+    res.status(200).send(removedId);
   } catch (err) {
-    logger.error('Failed to remove task', err)
-    res.status(500).send({ err: 'Failed to remove task' })
+    logger.error('Failed to remove task', err);
+    res.status(500).send({ err: 'Failed to remove task' });
   }
 }

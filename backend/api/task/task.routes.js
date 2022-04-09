@@ -1,7 +1,7 @@
 const express = require('express')
 const { requireAuth } = require('../../middlewares/requireAuth.middleware')
 const { log } = require('../../middlewares/logger.middleware')
-const { getTasks, getTaskById, addTask, updateTask, removeTask, performTask } = require('./task.controller')
+const { getTasks, getTaskById, addTask, updateTask, removeTask, startTask } = require('./task.controller')
 const router = express.Router()
 
 // middleware that is specific to this router
@@ -11,7 +11,7 @@ router.get('/', log, getTasks)
 router.get('/:id', getTaskById)
 router.post('/', addTask)
 router.put('/:id', updateTask)
-router.put('/:id/start', performTask)
+router.put('/:id/start', startTask)
 router.delete('/:id', removeTask)
 // router.post('/', requireAuth, addTask)
 // router.put('/:id', requireAuth, updateTask)
