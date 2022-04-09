@@ -13,23 +13,19 @@ module.exports = {
 };
 
 async function performTask(task) {
+  const id = ObjectId(task._id);
+  const collection = await dbService.getCollection('task');
   try {
-    const collection = await dbService.getCollection('task');
-    // update task status to running and save to DB
     task.status = 'running';
-    const id = ObjectId(task._id);
     delete task._id;
     await collection.updateOne({ _id: id }, { $set: { ...task } });
-    //  execute the task using: externalService.execute
     await execute(task);
-    // update task for success (doneAt, status)
     task.status = 'done';
+    task.doneAt = Date.now();
   } catch (error) {
-    // update task for error: status, errors
     task.status = 'failed';
     task.errors.push(error);
   } finally {
-    // update task lastTried, triesCount and save to DB
     task.lastTriedAt = Date.now();
     task.triesCount++;
     await collection.updateOne({ _id: id }, { $set: { ...task } });
@@ -38,13 +34,23 @@ async function performTask(task) {
   }
 }
 
-function execute(task) {
+async function execute(task) {
+  console.log('executing the task');
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (Math.random() > 0.5) resolve(parseInt(Math.random() * 100));
+      if (Math.random() > 0.5) {
+
+        console.log('success');
+        resolve(parseInt(Math.random() * 100));
+      }
       // TODO: throw some more random errors like in the image above
-      else reject('High Temparture');
-    }, 5000);
+      else {
+        console.log('fail');
+
+        reject('High Temparture');
+      }
+
+    }, 5);
   });
 }
 
@@ -121,11 +127,15 @@ async function update(task) {
 async function getNextTask() {
   try {
     const collection = await dbService.getCollection('task');
-    var task = await collection.find({ $and: 
-      [{ triesCount: { $lt: 5 } }, 
-        { $or: [{ status: { $eq: 'new' } }, 
-        { status: { $eq: 'failed' } }] }] })
-        .sort({ triesCount: 1, importance: -1, _id: 1 }).limit(1);
+    var task = await collection.find({
+      $and:
+        [{ triesCount: { $lt: 5 } },
+        {
+          $or: [{ status: { $eq: 'new' } },
+          { status: { $eq: 'failed' } }]
+        }]
+    })
+      .sort({ triesCount: 1, importance: -1, _id: 1 }).limit(1);
     return task;
   } catch (err) {
     logger.error('cannot find task to run', err);
